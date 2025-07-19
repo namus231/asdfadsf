@@ -1,24 +1,87 @@
 <!DOCTYPE html>
-<html>
+<html lang="ko">
 <head>
-  <title>Chat App</title>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-  <script src="app.js" defer></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>실시간 비속어 필터 채팅 앱</title>
   <style>
-    body { font-family: Arial; padding: 20px; }
-    #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
-    #chat-container { display: flex; gap: 10px; }
-    input { flex: 1; padding: 10px; }
-    button { padding: 10px; }
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 2em auto; }
+    #chatArea { border: 1px solid #ccc; height: 400px; overflow-y: scroll; padding: 10px; }
+    #messageInput { width: 80%; padding: 10px; }
+    #sendBtn { padding: 10px 20px; }
+    .message { margin: 5px 0; padding: 5px; border-bottom: 1px solid #eee; }
   </style>
 </head>
 <body>
-  <h1>채팅 앱</h1>
-  <div id="messages"></div>
-  <div id="chat-container">
-    <input type="text" id="messageInput" placeholder="메시지를 입력하세요">
-    <button onclick="sendMessage()">전송</button>
-  </div>
+  <h1>실시간 비속어 필터 채팅 앱</h1>
+  <div id="chatArea"></div>
+  <input type="text" id="messageInput" placeholder="메시지를 입력하세요" />
+  <button id="sendBtn">전송</button>
+
+  <!-- 파이어베이스 JS SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
+
+  <script src="badwords.js"></script>
+
+  <script>
+    // Firebase 프로젝트 설정 (본인 파이어베이스 설정으로 교체)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKDLlC5UYASF9VszmKaPrqX2RzS4zT9lI",
+      authDomain: "abdsfsdf-bde00.firebaseapp.com",
+      databaseURL: "https://abdsfsdf-bde00-default-rtdb.firebaseio.com",
+      projectId: "abdsfsdf-bde00",
+      storageBucket: "abdsfsdf-bde00.firebasestorage.app",
+      messagingSenderId: "118464728442",
+      appId: "1:118464728442:web:427646bb0c4f4e10521ac3"
+
+    };
+
+    // Firebase 초기화
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    // DOM 요소 가져오기
+    const chatArea = document.getElementById("chatArea");
+    const input = document.getElementById("messageInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    // 메시지 전송 함수
+    function sendMessage() {
+      let msg = input.value.trim();
+      if (msg === "") return;
+
+      // 비속어 필터 적용
+      const filteredMsg = filterBadWords(msg);
+
+      // DB에 메시지 저장
+      db.ref("messages").push({
+        text: filteredMsg,
+        timestamp: Date.now()
+      });
+
+      input.value = "";
+    }
+
+    // 전송 버튼 클릭 이벤트
+    sendBtn.addEventListener("click", sendMessage);
+
+    // Enter 키로도 전송 가능하게 하기
+    input.addEventListener("keydown", e => {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    // 실시간 메시지 수신
+    db.ref("messages").on("child_added", snapshot => {
+      const data = snapshot.val();
+      const msgDiv = document.createElement("div");
+      msgDiv.classList.add("message");
+      msgDiv.textContent = data.text;
+      chatArea.appendChild(msgDiv);
+      chatArea.scrollTop = chatArea.scrollHeight;
+    });
+  </script>
 </body>
 </html>
