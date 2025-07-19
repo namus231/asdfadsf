@@ -1,53 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8" />
-  <title>실시간 채팅앱</title>
+  <title>Chat App</title>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+  <script src="app.js" defer></script>
   <style>
-    #messages { height: 300px; overflow-y: auto; border:1px solid #ccc; margin-bottom:10px; padding:10px; }
-    #inputArea { display: flex; gap:8px; }
-    #messageInput { flex:1; padding:10px; }
-    button { padding:10px; }
+    body { font-family: Arial; padding: 20px; }
+    #messages { border: 1px solid #ccc; padding: 10px; height: 300px; overflow-y: scroll; margin-bottom: 10px; }
+    #chat-container { display: flex; gap: 10px; }
+    input { flex: 1; padding: 10px; }
+    button { padding: 10px; }
   </style>
 </head>
 <body>
-  <h2>💬 채팅앱</h2>
+  <h1>채팅 앱</h1>
   <div id="messages"></div>
-  <div id="inputArea">
-    <input type="text" id="messageInput" placeholder="메시지를 입력하세요" />
+  <div id="chat-container">
+    <input type="text" id="messageInput" placeholder="메시지를 입력하세요">
     <button onclick="sendMessage()">전송</button>
   </div>
-
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-  <script>
-    var firebaseConfig = {
-      apiKey: "AIzaSyBKDLlC5UYASF9VszmKaPrqX2RzS4zT9lI",
-      authDomain: "abdsfsdf-bde00.firebaseapp.com",
-      databaseURL: "https://abdsfsdf-bde00-default-rtdb.firebaseio.com",
-      projectId: "abdsfsdf-bde00",
-      storageBucket: "abdsfsdf-bde00.firebasestorage.app",
-      messagingSenderId: "118464728442",
-      appId: "1:118464728442:web:427646bb0c4f4e10521ac3"
-    };
-    firebase.initializeApp(firebaseConfig);
-
-    const db = firebase.database();
-    const refMessages = db.ref("messages");
-
-    function sendMessage() {
-      const inp = document.getElementById("messageInput");
-      const txt = inp.value.trim();
-      if (!txt) return;
-      refMessages.push({ text: txt });
-      inp.value = "";
-    }
-
-    refMessages.on("child_added", snap => {
-      const m = document.createElement("div");
-      m.textContent = snap.val().text;
-      document.getElementById("messages").appendChild(m);
-    });
-  </script>
 </body>
 </html>
