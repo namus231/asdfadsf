@@ -2,30 +2,25 @@
 <html>
 <head>
   <meta charset="UTF-8" />
-  <title>우리 채팅앱</title>
+  <title>실시간 채팅앱</title>
   <style>
-    body { font-family: Arial, sans-serif; background: #f0f0f0; padding: 20px; }
-    #messages { height: 300px; overflow-y: scroll; border: 1px solid #ccc; background: #fff; padding: 10px; margin-bottom: 10px; }
-    #inputArea { display: flex; gap: 10px; }
-    input[type="text"] { flex: 1; padding: 10px; }
-    button { padding: 10px 20px; }
-    .msg { margin-bottom: 8px; }
+    #messages { height: 300px; overflow-y: auto; border:1px solid #ccc; margin-bottom:10px; padding:10px; }
+    #inputArea { display: flex; gap:8px; }
+    #messageInput { flex:1; padding:10px; }
+    button { padding:10px; }
   </style>
 </head>
 <body>
-  <h2>🗨️ 실시간 소통 앱</h2>
+  <h2>💬 채팅앱</h2>
   <div id="messages"></div>
   <div id="inputArea">
     <input type="text" id="messageInput" placeholder="메시지를 입력하세요" />
     <button onclick="sendMessage()">전송</button>
   </div>
 
-  <!-- Firebase SDK -->
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
   <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
   <script>
-    // 🛠️ 여기를 당신의 Firebase 설정으로 바꾸세요!
     var firebaseConfig = {
       apiKey: "AIzaSyBKDLlC5UYASF9VszmKaPrqX2RzS4zT9lI",
       authDomain: "abdsfsdf-bde00.firebaseapp.com",
@@ -38,37 +33,20 @@
     firebase.initializeApp(firebaseConfig);
 
     const db = firebase.database();
-    const messagesRef = db.ref("messages");
+    const refMessages = db.ref("messages");
 
-    // 메시지 전송 함수
     function sendMessage() {
-      const input = document.getElementById("messageInput");
-      const text = input.value.trim();
-      if (text === "") return;
-
-      // 필터링 (간단한 비속어 예시)
-      const blacklist = ["나쁜말", "욕"];
-      let filtered = text;
-      blacklist.forEach(word => {
-        const reg = new RegExp(word, "gi");
-        filtered = filtered.replace(reg, "***");
-      });
-
-      messagesRef.push().set({
-        text: filtered,
-        timestamp: Date.now()
-      });
-
-      input.value = "";
+      const inp = document.getElementById("messageInput");
+      const txt = inp.value.trim();
+      if (!txt) return;
+      refMessages.push({ text: txt });
+      inp.value = "";
     }
 
-    // 메시지 수신
-    messagesRef.on("child_added", function(data) {
-      const msg = data.val().text;
-      const msgElem = document.createElement("div");
-      msgElem.className = "msg";
-      msgElem.textContent = msg;
-      document.getElementById("messages").appendChild(msgElem);
+    refMessages.on("child_added", snap => {
+      const m = document.createElement("div");
+      m.textContent = snap.val().text;
+      document.getElementById("messages").appendChild(m);
     });
   </script>
 </body>
